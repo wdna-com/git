@@ -612,5 +612,23 @@ gitflow_actions() {
     esac
 }
 
+check_changelog() {
+    if [ ! -f CHANGELOG.md ]
+    then
+        echo -e "- [${RED}${ERROR}${NC}]: Changelog file [${YELLOW}CHANGELOG.md${NC}] not found." > /dev/stderr
+        exit 1
+    fi
+}
+
+check_version() {
+    if [ ! -f VERSION ]
+    then
+        echo -e "- [${RED}${ERROR}${NC}]: Version file [${YELLOW}VERSION${NC}] not found." > /dev/stderr
+        exit 1
+    fi
+}
+
+check_changelog || exit 1
+check_version || exit 1
 # Start the script
 main_menu
