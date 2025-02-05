@@ -463,6 +463,9 @@ _gitflow_finish_release() {
     echo -e "- [${YELLOW}${INFO}${NC}]: Pushing changes to remote [${YELLOW}develop${NC}] branch..."
     git push origin develop -q
     echo -e "- [${GREEN}${SUCCESS}${NC}]: Release branch finished successfully."
+    # Push new tag to remote
+    echo -e "- [${YELLOW}${INFO}${NC}]: Pushing new tag [${YELLOW}${RELEASE_VERSION}${NC}] to remote repository..."
+    git push origin "${RELEASE_VERSION}" -q
     echo -e "${SEPARATOR2}"
     exit 0
 }
@@ -582,6 +585,9 @@ _gitflow_finish_hotfix() {
     git push origin "${BRANCH_MAIN}" -q
     echo -e "- [${YELLOW}${INFO}${NC}]: Pushing changes to remote [${YELLOW}develop${NC}] branch..."
     git push origin develop -q
+    # Push new tag to remote
+    echo -e "- [${YELLOW}${INFO}${NC}]: Pushing new tag [${YELLOW}${HOTFIX_VERSION}${NC}] to remote repository..."
+    git push origin "${HOTFIX_VERSION}" -q
     echo -e "- [${GREEN}${SUCCESS}${NC}]: Hotfix branch finished successfully."
     echo -e "${SEPARATOR2}"
     exit 0
