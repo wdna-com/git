@@ -451,6 +451,8 @@ _gitflow_finish_release() {
         echo -e "- [${RED}${ERROR}${NC}]: You must be on a release branch to finish a release." > /dev/stderr
         exit 1
     fi
+    local RELEASE_VERSION
+    RELEASE_VERSION=$(git branch --show-current | grep -oP '\d+\.\d+\.\d+')
     echo -e "- [${YELLOW}${INFO}${NC}]: Pulling latest changes from [${YELLOW}${BRANCH_MAIN}${NC}] branch..."
     git pull origin "${BRANCH_MAIN}" -q
     echo -e "- [${YELLOW}${INFO}${NC}]: Pulling latest changes from [${YELLOW}develop${NC}] branch..."
