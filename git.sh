@@ -36,30 +36,74 @@ then
     exit 1
 fi
 # Check if develop is a branch
-if [ ! -f .git/refs/heads/develop ]  || [ ! -f .git/refs/remotes/origin/develop ]
+EXIST_DEVELOP_LOCAL=$(git branch --list develop)
+EXIST_DEVELOP_REMOTE=$(git ls-remote --heads origin develop)
+# -n => check if string is not empty
+# -z => check if string is empty
+if [ -n "${EXIST_DEVELOP_LOCAL}" ] && [ -n "${EXIST_DEVELOP_REMOTE}" ]
 then
-    echo -e "- [${RED}${ERROR}${NC}]: This repository does not have a [${YELLOW}develop${NC}] branch." > /dev/stderr
+    echo -e "- [${GREEN}${SUCCESS}${NC}]: Remote branch [${YELLOW}develop${NC}] found. ✅"
+    echo -e "- [${GREEN}${SUCCESS}${NC}]: Local branch [${YELLOW}develop${NC}] found. ✅"
+elif [ -z "${EXIST_DEVELOP_LOCAL}" ] && [ -z "${EXIST_DEVELOP_REMOTE}" ]
+then
+    echo -e "- [${RED}${ERROR}${NC}]: Local and remote branch [${YELLOW}develop${NC}] not found." > /dev/stderr
+    echo -e "- [${RED}${ERROR}${NC}]: Please create a [${YELLOW}develop${NC}] branch using the following command: [${YELLOW}git checkout -b develop${NC}]" > /dev/stderr
+    echo -e "- [${RED}${ERROR}${NC}]: Please push the [${YELLOW}develop${NC}] branch to remote repository using the following command: [${YELLOW}git push origin develop${NC}]" > /dev/stderr
     exit 1
-fi
-# Check if master or main is a branch
-if [ -f .git/refs/heads/master ]  || [ -f .git/refs/remotes/origin/master ]
+elif [ -z "${EXIST_DEVELOP_LOCAL}" ]
 then
-    BRANCH_MAIN="master"
-elif [ -f .git/refs/heads/main ]  || [ -f .git/refs/remotes/origin/main ]
-then
-    BRANCH_MAIN="main"
-else
-    echo -e "- [${RED}${ERROR}${NC}]: This repository does not have a [${YELLOW}master${NC}] or [${YELLOW}main${NC}] branch." > /dev/stderr
+    echo -e "- [${RED}${ERROR}${NC}]: Local branch [${YELLOW}develop${NC}] not found." > /dev/stderr
+    echo -e "- [${RED}${ERROR}${NC}]: Please get the [${YELLOW}develop${NC}] branch from remote repository using the following command: [${YELLOW}git checkout develop${NC}]" > /dev/stderr
     exit 1
-fi
-# Check if git-flow is initialized
-if [ ! -f .git/config ] || [ -z "$(grep '\[gitflow "branch"\]' .git/config)" ]
+elif [ -z "${EXIST_DEVELOP_REMOTE}" ]
 then
-    echo -e "- [${RED}${ERROR}${NC}]: GitFlow is not initialized, please initialize it using the following command:" > /dev/stderr
-    echo -e "  ${YELLOW}git flow init${NC}"
+    echo -e "- [${RED}${ERROR}${NC}]: Remote branch [${YELLOW}develop${NC}] not found." > /dev/stderr
+    echo -e "- [${RED}${ERROR}${NC}]: Please push the [${YELLOW}develop${NC}] branch to remote repository using the following command: [${YELLOW}git push origin develop${NC}]" > /dev/stderr
     exit 1
 fi
 
+# Check if master or main is a branch
+EXIST_MASTER_REMOTE=$(git ls-remote --heads origin master)
+EXIST_MAIN_REMOTE=$(git ls-remote --heads origin main)
+# -n => check if string is not empty
+# -z => check if string is empty
+if [ -n "${EXIST_MASTER_REMOTE}" ] && [ -n "${EXIST_MAIN_REMOTE}" ]
+then
+    echo -e "- [${RED}${ERROR}${NC}]: Remote branches [${YELLOW}master${NC}] and [${YELLOW}main${NC}] found at the same time. Please remove one of them." > /dev/stderr 
+    exit 1
+elif [ -z "${EXIST_MAIN_REMOTE}" ] && [ -z "${EXIST_MASTER_REMOTE}" ]
+then
+    echo -e "- [${RED}${ERROR}${NC}]: Remote branch [${YELLOW}main${NC}] not found. Please create a [${YELLOW}main${NC}] branch in remote repository." > /dev/stderr
+    exit 1
+elif [ -n "${EXIST_MAIN_REMOTE}" ]
+then
+    BRANCH_MAIN="main"
+elif [ -n "${EXIST_MASTER_REMOTE}" ]
+then
+    BRANCH_MAIN="master"
+fi
+
+echo -e "- [${GREEN}${SUCCESS}${NC}]: Remote branch [${YELLOW}${BRANCH_MAIN}${NC}] found. ✅"
+
+EXIST_MAIN_LOCAL=$(git branch --list "${BRANCH_MAIN}")
+if [ -z "${EXIST_MAIN_LOCAL}" ]
+then
+    echo -e "- [${RED}${ERROR}${NC}]: Local branch [${YELLOW}${BRANCH_MAIN}${NC}] not found." > /dev/stderr
+    echo -e "- [${RED}${ERROR}${NC}]: Please get the [${YELLOW}${BRANCH_MAIN}${NC}] branch from remote repository using the following command: [${YELLOW}git checkout ${BRANCH_MAIN}${NC}]" > /dev/stderr
+    exit 1
+fi
+
+echo -e "- [${GREEN}${SUCCESS}${NC}]: Local branch [${YELLOW}${BRANCH_MAIN}${NC}] found. ✅"
+
+# Check if git-flow is initialized
+if [ ! -f .git/config ] || [ -z "$(grep '\[gitflow "branch"\]' .git/config)" ]
+then
+    echo -e "- [${RED}${ERROR}${NC}]: GitFlow is not initialized" > /dev/stderr
+    echo -e "- [${RED}${ERROR}${NC}]: Please initialize GitFlow using the following command: [${YELLOW}git flow init${NC}]" > /dev/stderr
+    exit 1
+fi
+
+echo -e "- [${GREEN}${SUCCESS}${NC}]: GitFlow is initialized 👌."
 
 is_clean() {
     if [ -n "$(git status --porcelain)" ]
@@ -77,7 +121,7 @@ write_changelog() {
 # Main menu
 main_menu() {
     echo -e "${SEPARATOR1}"
-    echo -e "${GREEN}Current branch: ${YELLOW}$(git branch --show-current)${NC}"
+    echo -e "${GREEN}Current branch: ${YELLOW}$(git branch --show-current)${NC} 👀"
     echo -e "${SEPARATOR1}"
     echo -e "${GREEN}Select an action:${NC}"
     echo -e "${YELLOW}1) Git Actions${NC}"
