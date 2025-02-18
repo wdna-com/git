@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 ---
 
+## [1.0.5] - 2025-02-18
+- HOTFIX: 5cf344c [FIX] git flow feature finish wit --no-ff
+
 ## [1.0.4] - 2025-02-18
 - HOTFIX: af56610 [FIX] git feature finish message
 
