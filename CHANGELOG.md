@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 ---
 
+## [1.0.4] - 2025-02-18
+- HOTFIX: af56610 [FIX] git feature finish message
+
 ## [1.0.3] - 2025-02-14
 - HOTFIX: 3a61d27 [FIX] detect main develop or master branch
 
